@@ -1,0 +1,30 @@
+{% extends 'shopapp/base.html' %}
+
+{% block title %}
+    Orders List
+{% endblock %}
+
+{% block body %}
+    <h1>Orders</h1>
+    {% if orders %}
+        <ul>
+            {% for order in orders %}
+                <div>
+                    <p>Заказ на {% firstof order.user.firstname order.user.username %}</p>
+                    <p>Промокод {% firstof order.promocode "Промокода нет" %}</p>
+                    <p>Адрес доставки: {{ order.deliveri_address }}</p>
+                    Продукты в заказе:
+                    <ul>
+                        {% for product in order.products.all %}
+                            <li>{{ product.name }} стоимость которого {{ product.price }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+
+            {% endfor %}
+        </ul>
+    {% else %}
+        <h3>Нет заказов</h3>
+    {% endif %}
+
+{% endblock %}
