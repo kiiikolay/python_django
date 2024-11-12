@@ -57,6 +57,7 @@ class ProductAdmin(admin.ModelAdmin, ExportAsCSVMixin):
 # admin.site.register(Product, ProductAdmin)
 
 # class ProductInline(admin.TabularInline):
+
 class ProductInline(admin.StackedInline):
     model = Order.products.through
 

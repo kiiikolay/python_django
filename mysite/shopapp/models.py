@@ -5,7 +5,7 @@ class Product(models.Model):
     class Meta:
         ordering = ["name", "price"]
         # db_table = "tech_products"
-        # verbose_name_plural = "prodects"
+        # verbose_name_plural = "products"
 
     name = models.CharField(max_length=100)
     description = models.TextField(null=False, blank=True)
