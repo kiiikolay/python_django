@@ -8,11 +8,11 @@
     <h1>Products</h1>
     {% if products %}
     <div>
-    {% for prod in products %}
+    {% for product in products %}
         <div>
-            <p>Название: {{ prod.name }}</p>
-            <p>Цена: {{ prod.price }}</p>
-            <p>Скидка: {% firstof prod.discount 'Нет скидки'%}</p>
+            <p><a href="{% url 'shopapp:product_details' pk=product.pk %}">Name: {{ product.name }}</a></p>
+            <p>Цена: {{ product.price }}</p>
+            <p>Скидка: {% firstof product.discount 'Нет скидки'%}</p>
         </div>
     {% endfor %}
 
@@ -23,7 +23,7 @@
     {% endif %}
 
     <div>
-        <a href="{% url 'shopapp:product_create' %}">Создать новый заказ</a>
+        <a href="{% url 'shopapp:product_create' %}">Создать новый продукт</a>
     </div>
 
 {% endblock %}
