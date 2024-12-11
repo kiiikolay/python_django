@@ -6,10 +6,11 @@
 
 {% block body %}
     <h1>Orders</h1>
-    {% if orders %}
+    {% if object_list %}
         <ul>
-            {% for order in orders %}
+            {% for order in object_list %}
                 <div>
+                    <p><a href="{% url 'shopapp:order_details' pk=order.pk %}">Детали #{{ order.pk }}</a></p>
                     <p>Заказ на {% firstof order.user.firstname order.user.username %}</p>
                     <p>Промокод {% firstof order.promocode "Промокода нет" %}</p>
                     <p>Адрес доставки: {{ order.deliveri_address }}</p>
@@ -28,7 +29,7 @@
     {% endif %}
 
     <div>
-        <a href="{% url 'shopapp:create_order' %}">Создать новый продукт</a>
+        <a href="{% url 'shopapp:create_order' %}">Создать новый заказ</a>
     </div>
 
 {% endblock %}
