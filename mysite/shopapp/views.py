@@ -1,8 +1,10 @@
+from http.client import responses
 from importlib.resources import contents
 from django.contrib.auth.models import Group
 from itertools import product
 from  timeit import default_timer
 
+from django.contrib.auth.views import LogoutView
 from django.contrib.messages import success
 from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
 from django.shortcuts import render, redirect, reverse, get_object_or_404
@@ -14,6 +16,7 @@ from requestdataapp.forms import UploadFileForm
 from .models import Product, Order
 from .forms import ProductForm, OrderForm, GroupForm
 from django.views import View
+from django.contrib.auth import authenticate, login, logout
 
 class ShopIndexView(View):
     def get(self, request: HttpRequest) -> HttpResponse:
@@ -122,3 +125,50 @@ class OrderDeleteView(DeleteView):
     success_url = reverse_lazy("shopapp:orders_list")
 
 
+class MyLogoutView(LogoutView):
+    next_page = reverse_lazy("shopapp:login")
+
+def set_cookie_view(request: HttpRequest) -> HttpResponse:
+    response = HttpResponse("Cookie set")
+    response.set_cookie("fizz", "buzz", max_age=3600)
+    return response
+
+def get_cookie_view(request: HttpRequest) -> HttpResponse:
+    value = request.COOKIES.get("fizz", "default value")
+    return HttpResponse(f"Cookie value: {value!r}")
+
+def set_session_view(request: HttpRequest) -> HttpResponse:
+    request.session["foobar"] = "spameggs"
+    return HttpResponse("Session set")
+
+def get_session_view(request: HttpRequest) -> HttpResponse:
+    value = request.session.get("foobar", "default")
+    return HttpResponse(f"Session value: {value!r}")
+
+
+""" ____________________________________________________________________________________
+Самодельная View функция для Регистрации """
+
+# def login_view(request: HttpRequest):
+#     if request.method == "GET":
+#         if request.user.is_authenticated:
+#             return redirect('/admin/')
+#
+#         return render(request, 'shopapp/login.html')
+#
+#     username = request.POST['username']
+#     password = request.POST['password']
+#
+#     user = authenticate(request, username=username, password=password)
+#     if user:
+#         login(request, user)
+#         return redirect('/admin/')
+#
+#     return render(request, "shopapp/login.html", {"error": "Неверные значения"})
+"""______________________________________________________________________
+Самодельная View функция для Logout"""
+
+# def logout_view(request: HttpRequest) -> HttpResponse:
+#     logout(request)
+#     return redirect(reverse("shopapp:login"))
+"""______________________________________________________________________"""
