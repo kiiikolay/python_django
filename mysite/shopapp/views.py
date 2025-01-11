@@ -4,6 +4,7 @@ from django.contrib.auth.models import Group
 from itertools import product
 from  timeit import default_timer
 
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.views import LogoutView
 from django.contrib.messages import success
 from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
@@ -12,6 +13,7 @@ from django.utils.translation.template import context_re
 from django.views.generic import TemplateView, ListView, DetailView, CreateView, DeleteView, UpdateView
 from django.urls import reverse_lazy
 
+from myauth.models import Profile
 from requestdataapp.forms import UploadFileForm
 from .models import Product, Order
 from .forms import ProductForm, OrderForm, GroupForm
@@ -53,7 +55,7 @@ class ProductDetailsView(DetailView):
     context_object_name = "product"
 
 
-class ProductsListView(ListView):
+class ProductsListView(LoginRequiredMixin, ListView):
     template_name = 'shopapp/products-list.html'
     # model = Product
     context_object_name = "products"
@@ -64,10 +66,20 @@ class ProductsListView(ListView):
 #         "products": Product.objects.all(),
 #     }
 #     return render(request, 'shopapp/products-list.html', context=context)
-class ProductCreateView(CreateView):
+
+class ProductCreateView(PermissionRequiredMixin, CreateView):
+    # def test_func(self):
+        # return self.request.user.groups.filter(name="secret-group").exists()
+        # return self.request.user.is_superuser
+    permission_required = "add_product"
     model = Product
     fields = "name", "description", "price", "discount"
     success_url = reverse_lazy("shopapp:products_list")
+
+    def form_valid(self, form):
+        form.instance.created_by = self.request.user
+        return super().form_valid(form)
+
 
 class ProductUpdateView(UpdateView):
     model = Product
@@ -97,13 +109,14 @@ class OrderCreateView(CreateView):
     fields = "deliveri_address", "promocode", "user", "products"
     success_url = reverse_lazy("shopapp:orders_list")
 
-class OrdersListViev(ListView):
+class OrdersListViev(LoginRequiredMixin ,ListView):
     queryset = (Order.objects
                 .select_related("user")
                 .prefetch_related('products').all()
     )
 
-class OrdersDetailViev(DetailView):
+class OrdersDetailViev(PermissionRequiredMixin, DetailView):
+    permission_required = "view_order"
     queryset = (Order.objects
                 .select_related("user")
                 .prefetch_related('products').all()
@@ -121,54 +134,7 @@ class OrderUpdateView(UpdateView):
         )
 
 class OrderDeleteView(DeleteView):
+
     model = Order
     success_url = reverse_lazy("shopapp:orders_list")
 
-
-class MyLogoutView(LogoutView):
-    next_page = reverse_lazy("shopapp:login")
-
-def set_cookie_view(request: HttpRequest) -> HttpResponse:
-    response = HttpResponse("Cookie set")
-    response.set_cookie("fizz", "buzz", max_age=3600)
-    return response
-
-def get_cookie_view(request: HttpRequest) -> HttpResponse:
-    value = request.COOKIES.get("fizz", "default value")
-    return HttpResponse(f"Cookie value: {value!r}")
-
-def set_session_view(request: HttpRequest) -> HttpResponse:
-    request.session["foobar"] = "spameggs"
-    return HttpResponse("Session set")
-
-def get_session_view(request: HttpRequest) -> HttpResponse:
-    value = request.session.get("foobar", "default")
-    return HttpResponse(f"Session value: {value!r}")
-
-
-""" ____________________________________________________________________________________
-Самодельная View функция для Регистрации """
-
-# def login_view(request: HttpRequest):
-#     if request.method == "GET":
-#         if request.user.is_authenticated:
-#             return redirect('/admin/')
-#
-#         return render(request, 'shopapp/login.html')
-#
-#     username = request.POST['username']
-#     password = request.POST['password']
-#
-#     user = authenticate(request, username=username, password=password)
-#     if user:
-#         login(request, user)
-#         return redirect('/admin/')
-#
-#     return render(request, "shopapp/login.html", {"error": "Неверные значения"})
-"""______________________________________________________________________
-Самодельная View функция для Logout"""
-
-# def logout_view(request: HttpRequest) -> HttpResponse:
-#     logout(request)
-#     return redirect(reverse("shopapp:login"))
-"""______________________________________________________________________"""

@@ -1,11 +1,11 @@
-{% extends 'shopapp/base.html' %}
+{% extends 'shopapp/baseshop.html' %}
 
 {% block title %}
     Детали продукта
 {% endblock %}
 
 {% block body %}
-    <h1>Продукт<strong>{{ product.name }}</strong></h1>
+    <h1>Продукт <strong>{{ product.name }}</strong></h1>
 
     <div>
         <div>Описание: <em>{{ product.description }}</em></div>
