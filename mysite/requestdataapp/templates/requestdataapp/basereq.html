@@ -98,9 +98,10 @@
   <header>
     <div class="head-container">
         <a href="{% url 'shopapp:index' %}">shopapp</a>
-        <a href="#">auth</a>
+        <a href="{% url 'myauth:login' %}">auth</a>
         <a href="{% url 'requestdataapp:get-vew' %}">requestdataapp</a>
-        <a href="#">home</a>
+        <a href="{% url 'home:home-page' %}">home</a>
+        <a href="{% url 'myauth:logout' %}" style="color: red">Выход</a>
     </div>
   </header>
 

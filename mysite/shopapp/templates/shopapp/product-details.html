@@ -14,13 +14,15 @@
         <div>Архив : {{ product.archived }}</div>
     </div>
 
-    <div>
-        <a href="{% url 'shopapp:product_update' pk=product.pk%}">Обновить продукт</a>
-    </div>
+    {% if product.created_by_id == user.pk and perms.shopapp.change_product or user.is_superuser %}
+        <div>
+            <a href="{% url 'shopapp:product_update' pk=product.pk%}">Обновить продукт</a>
+        </div>
 
-    <div>
-        <a href="{% url 'shopapp:product_archive' pk=product.pk%}">Архивировать продукт</a>
-    </div>
+        <div>
+            <a href="{% url 'shopapp:product_archive' pk=product.pk%}">Архивировать продукт</a>
+        </div>
+    {% endif %}
 
     <div>
         <a href="{% url 'shopapp:products_list' %}">Вернуться к списку продуктов</a>

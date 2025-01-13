@@ -1,6 +1,6 @@
 from http.client import responses
 from importlib.resources import contents
-from django.contrib.auth.models import Group
+from django.contrib.auth.models import Group, User
 from itertools import product
 from  timeit import default_timer
 
@@ -71,7 +71,7 @@ class ProductCreateView(PermissionRequiredMixin, CreateView):
     # def test_func(self):
         # return self.request.user.groups.filter(name="secret-group").exists()
         # return self.request.user.is_superuser
-    permission_required = "add_product"
+    permission_required = "shopapp.add_product"
     model = Product
     fields = "name", "description", "price", "discount"
     success_url = reverse_lazy("shopapp:products_list")
@@ -81,8 +81,12 @@ class ProductCreateView(PermissionRequiredMixin, CreateView):
         return super().form_valid(form)
 
 
-class ProductUpdateView(UpdateView):
+class ProductUpdateView(UserPassesTestMixin, UpdateView):
     model = Product
+    def test_func(self):
+        if self.request.user.is_superuser:
+            return True
+        return Product.created_by == self.request.user.pk
     fields = "name", "description", "price", "discount"
     template_name_suffix = "_update_form"
 

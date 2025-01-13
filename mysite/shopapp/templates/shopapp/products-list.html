@@ -23,7 +23,7 @@
     {% endif %}
 
     <div>
-            {% if perms.foo.add_product %}
+            {% if perms.shopapp.add_product %}
                 <a href="{% url 'shopapp:product_create' %}">Создать новый продукт</a>
             {% else %}
                 <p>Нет прав</p>
