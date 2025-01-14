@@ -1,11 +1,11 @@
-{% extends 'shopapp/base.html' %}
+{% extends 'shopapp/baseshop.html' %}
 
 {% block title %}
     Детали продукта
 {% endblock %}
 
 {% block body %}
-    <h1>Продукт<strong>{{ product.name }}</strong></h1>
+    <h1>Продукт <strong>{{ product.name }}</strong></h1>
 
     <div>
         <div>Описание: <em>{{ product.description }}</em></div>
@@ -14,13 +14,15 @@
         <div>Архив : {{ product.archived }}</div>
     </div>
 
-    <div>
-        <a href="{% url 'shopapp:product_update' pk=product.pk%}">Обновить продукт</a>
-    </div>
+    {% if product.created_by_id == user.pk and perms.shopapp.change_product or user.is_superuser %}
+        <div>
+            <a href="{% url 'shopapp:product_update' pk=product.pk%}">Обновить продукт</a>
+        </div>
 
-    <div>
-        <a href="{% url 'shopapp:product_archive' pk=product.pk%}">Архивировать продукт</a>
-    </div>
+        <div>
+            <a href="{% url 'shopapp:product_archive' pk=product.pk%}">Архивировать продукт</a>
+        </div>
+    {% endif %}
 
     <div>
         <a href="{% url 'shopapp:products_list' %}">Вернуться к списку продуктов</a>

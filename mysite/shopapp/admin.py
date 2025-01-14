@@ -74,3 +74,4 @@ class OrderAdmin(admin.ModelAdmin):
     def user_verbose(self, obj: Order) -> str:
         return  obj.user.first_name or obj.user.username
 
+

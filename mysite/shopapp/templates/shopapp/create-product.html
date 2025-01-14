@@ -1,4 +1,4 @@
-{% extends 'shopapp/base.html' %}
+{% extends 'shopapp/baseshop.html' %}
 
 {% block title %}
     Создание продукта
@@ -6,7 +6,7 @@
 
 {% block body %}
     <h1>Создание нового продукта</h1>
-    <div>
+    <div class="good-form" style="display: flex; justify-content: space-deetween; align-items: left">
         <form method="post">
             {% csrf_token %}
 

@@ -1,7 +1,7 @@
-{% extends 'shopapp/base.html' %}
+{% extends 'myauth/baseauth.html' %}
 
 {% block title %}
-    Регистрация
+    Вход
 {% endblock %}
 
 {% block body %}
@@ -10,7 +10,6 @@
 
         {{ form.as_p }}
 
-
-        <button type="submit">Регистрация</button>
+        <button type="submit">Войти</button>
     </form>
 {% endblock %}

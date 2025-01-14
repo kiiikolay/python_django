@@ -1,4 +1,4 @@
-{% extends 'shopapp/base.html' %}
+{% extends 'shopapp/baseshop.html' %}
 
 {% block title %}
     Products List
@@ -11,8 +11,8 @@
     {% for product in products %}
         <div>
             <p><a href="{% url 'shopapp:product_details' pk=product.pk %}">Name: {{ product.name }}</a></p>
-            <p>Цена: {{ product.price }}</p>
-            <p>Скидка: {% firstof product.discount 'Нет скидки'%}</p>
+            <p>Цена: {{ product.price }}$</p>
+            <p>Скидка: {% firstof product.discount 'Нет скидки'%}%</p>
         </div>
     {% endfor %}
 
@@ -23,7 +23,11 @@
     {% endif %}
 
     <div>
-        <a href="{% url 'shopapp:product_create' %}">Создать новый продукт</a>
+            {% if perms.shopapp.add_product %}
+                <a href="{% url 'shopapp:product_create' %}">Создать новый продукт</a>
+            {% else %}
+                <p>Нет прав</p>
+            {% endif %}
     </div>
 
 {% endblock %}

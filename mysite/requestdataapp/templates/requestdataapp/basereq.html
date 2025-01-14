@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>
+      {% block title %}
+       Base Title
+      {% endblock %}
+    </title>
+
+    <style>
+
+      * {
+        font-family: 'Roboto', sans-serif;
+      }
+
+      html, body {
+        color: white;
+        background-color: #f6f7f9;
+        margin: 0;
+        padding: 0;
+      }
+
+      header {
+        color: white;
+        padding: 20px 0px;
+        background-color: #271d3e;
+      }
+
+      header > div {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .head-container {
+        max-width: 1000px;
+        height: 100%;
+        margin-left: auto;
+        margin-right: auto;
+      }
+
+      .head-container a{
+        text-decoration: none;
+        color: rgb(226, 77, 147);
+      }
+
+      .block {
+        width: 100%;
+        display: flex;
+      }
+
+      .block a {
+        text-decoration: none;
+        color: rgb(168, 73, 117);
+      }
+
+
+      .left-contein {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: space-between;
+        /* background-color: aqua; */
+        height: 100vh;
+        width: 250px;
+        padding: 10px;
+        background-color: #271d3e;
+        
+      }
+
+      .main-contein {
+        text-align: center;
+        background-color: rgb(70, 58, 97);
+        width: 100%;
+        padding: 20px;
+        border-top: 1px solid black;
+        border-left: 1px solid black;
+        /* background-image: url('C:/Users/mrnif/Pictures/фоны/main.png');
+        background-size: contain;
+        background-repeat: no-repeat;
+        background-position: right center; */
+      }
+
+      .navigate {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+
+    </style>
+</head>
+
+
+
+<body>
+    
+  <header>
+    <div class="head-container">
+        <a href="{% url 'shopapp:index' %}">shopapp</a>
+        <a href="{% url 'myauth:login' %}">auth</a>
+        <a href="{% url 'requestdataapp:get-vew' %}">requestdataapp</a>
+        <a href="{% url 'home:home-page' %}">home</a>
+        <a href="{% url 'myauth:logout' %}" style="color: red">Выход</a>
+    </div>
+  </header>
+
+  <section class="block">
+    <div class="left-contein">
+      <div class="navigate">
+      
+        <h2 style="border: 1px solid black; 
+        border-radius: 40px; 
+        padding: 20px;
+        background-color: #2d0d79;"
+        >Навигация</h2>
+
+        <div style="margin-top: 60px ;">
+          <p><a href="{% url 'requestdataapp:get-vew' %}">vew</a></p>
+          <p><a href="{% url 'requestdataapp:user-form' %}">форма пользователя</a></p>
+          <p><a href="{% url 'requestdataapp:file-upload' %}">загрузка файла</a></p>
+        </div>
+
+      </div>
+
+      <div class="detail">
+        <div>
+          {% now 'H:i" %}
+        </div>
+  
+        <div>
+          {% now 'l' as current_weekday %}
+          Today is {{ current_weekday }}
+        </div>
+      </div>
+      
+
+    </div>
+
+    <div class="main-contein">
+      {% block body %}
+      Base Body
+      {% endblock %}
+    </div>
+
+  </section>
+
+  <footer>
+
+  </footer>
+
+</body>
+</html>
