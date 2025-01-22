@@ -1,0 +1,42 @@
+[
+  {
+    "model": "auth.group",
+    "pk": 4,
+    "fields": {
+      "name": "Users",
+      "permissions": [
+        33,
+        34,
+        35,
+        36,
+        21,
+        29,
+        30,
+        31,
+        32,
+        25,
+        26,
+        27,
+        28
+      ]
+    }
+  },
+  {
+    "model": "auth.group",
+    "pk": 5,
+    "fields": {
+      "name": "Moders",
+      "permissions": []
+    }
+  },
+  {
+    "model": "auth.group",
+    "pk": 6,
+    "fields": {
+      "name": "profile_manager",
+      "permissions": [
+        36
+      ]
+    }
+  }
+]
