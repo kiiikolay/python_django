@@ -1,0 +1,20 @@
+[
+  {
+    "model": "myauth.profile",
+    "pk": 1,
+    "fields": {
+      "user": 4,
+      "bio": "Moss",
+      "agreement_accepted": false
+    }
+  },
+  {
+    "model": "myauth.profile",
+    "pk": 2,
+    "fields": {
+      "user": 1,
+      "bio": "ADM",
+      "agreement_accepted": false
+    }
+  }
+]

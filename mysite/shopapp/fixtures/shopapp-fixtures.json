@@ -1,0 +1,109 @@
+[
+  {
+    "model": "shopapp.product",
+    "pk": 1,
+    "fields": {
+      "name": "Laptop",
+      "description": "some",
+      "price": "1000.00",
+      "discount": 10,
+      "create_at": "2024-10-31T16:08:54.322Z",
+      "archived": true,
+      "created_by": 1
+    }
+  },
+  {
+    "model": "shopapp.product",
+    "pk": 2,
+    "fields": {
+      "name": "Desktop",
+      "description": "cal",
+      "price": "2000.00",
+      "discount": 15,
+      "create_at": "2024-10-31T16:08:54.331Z",
+      "archived": false,
+      "created_by": 1
+    }
+  },
+  {
+    "model": "shopapp.product",
+    "pk": 3,
+    "fields": {
+      "name": "Smartphone",
+      "description": "",
+      "price": "3000.00",
+      "discount": 0,
+      "create_at": "2024-10-31T16:08:54.338Z",
+      "archived": true,
+      "created_by": 1
+    }
+  },
+  {
+    "model": "shopapp.product",
+    "pk": 4,
+    "fields": {
+      "name": "Tablet",
+      "description": "great tablet",
+      "price": "1234.00",
+      "discount": 0,
+      "create_at": "2024-11-17T12:12:47.925Z",
+      "archived": true,
+      "created_by": 1
+    }
+  },
+  {
+    "model": "shopapp.product",
+    "pk": 7,
+    "fields": {
+      "name": "iPhone",
+      "description": "Apple",
+      "price": "100000.00",
+      "discount": 7,
+      "create_at": "2024-12-05T16:47:04.745Z",
+      "archived": true,
+      "created_by": 1
+    }
+  },
+  {
+    "model": "shopapp.product",
+    "pk": 8,
+    "fields": {
+      "name": "Posch",
+      "description": "PoPorch\r\nYou know?",
+      "price": "13.00",
+      "discount": 1,
+      "create_at": "2025-01-13T11:35:57.291Z",
+      "archived": false,
+      "created_by": 4
+    }
+  },
+  {
+    "model": "shopapp.order",
+    "pk": 2,
+    "fields": {
+      "deliveri_address": "Пожилой переулок 23, дом 2",
+      "promocode": "SALE123",
+      "create_at": "2024-11-02T05:40:36.550Z",
+      "user": 1,
+      "products": [
+        2,
+        1,
+        3
+      ]
+    }
+  },
+  {
+    "model": "shopapp.order",
+    "pk": 3,
+    "fields": {
+      "deliveri_address": "ул. Вторая вилла админа 64",
+      "promocode": "OPA",
+      "create_at": "2024-11-17T13:29:29.198Z",
+      "user": 1,
+      "products": [
+        3,
+        4
+      ]
+    }
+  }
+]
