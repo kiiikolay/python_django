@@ -1,18 +1,27 @@
+import os
+
 from django.contrib.auth.models import User
 from django.db import models
+from django.utils.deconstruct import deconstructible
+
 from myauth.models import Profile
 
-def product_preview_directory_path(instance: "Product", filename: str) -> str:
-    return "product/product_{pk}/preview/{filename}".format(
-        pk=instance.pk,
-        filename=filename,
-    )
+
+@deconstructible
+class ProductPreviewDirectoryPath:
+    def __call__(self, instance, filename):
+        return "product/product_{pk}/preview/{filename}".format(
+            pk=instance.pk,
+            filename=filename,
+        )
+
+
+product_preview_directory_path = ProductPreviewDirectoryPath()
+
 
 class Product(models.Model):
     class Meta:
         ordering = ["name", "price"]
-        # db_table = "tech_products"
-        # verbose_name_plural = "products"
 
     name = models.CharField(max_length=100)
     description = models.TextField(null=False, blank=True)
@@ -21,7 +30,34 @@ class Product(models.Model):
     create_at = models.DateTimeField(auto_now_add=True)
     archived = models.BooleanField(default=False)
     created_by = models.ForeignKey(User, on_delete=models.PROTECT, related_name='products_created')
-    preview = models.ImageField(null=True, blank=True, upload_to=product_preview_directory_path)
+    preview = models.ImageField(null=True, blank=True, upload_to=None)  # Убираем upload_to
+    _preview_pending = None
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._preview_pending = None
+
+    def save(self, *args, **kwargs):
+        is_new = not self.pk
+
+        if is_new and self.preview:
+            self._preview_pending = self.preview
+            self.preview = None
+
+        super().save(*args, **kwargs)
+        if self._preview_pending:
+            file_path = product_preview_directory_path(self, os.path.basename(self._preview_pending.name))
+
+            self.preview.name = file_path
+            super().save(*args, **kwargs)
+            self._preview_pending = None
+
+    def __str__(self) -> str:
+        return f"Product(pk={self.pk}, name={self.name!r})"
+
+
+def __str__(self) -> str:
+    return f"Product(pk={self.pk}, name={self.name!r})"
 
     # @property
     # def description_short(self) -> str:
