@@ -12,6 +12,10 @@
         <div>Цена: {{ product.price }}</div>
         <div>Скидка: {{ product.discount }}</div>
         <div>Архив : {{ product.archived }}</div>
+
+        {% if product.preview %}
+            <img src="{{ product.preview.url }}}" alt="{{ product.preview.name }}">
+        {% endif %}
     </div>
 
     {% if product.created_by_id == user.pk and perms.shopapp.change_product or user.is_superuser %}

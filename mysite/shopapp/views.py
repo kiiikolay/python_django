@@ -75,7 +75,7 @@ class ProductCreateView(PermissionRequiredMixin, CreateView):
         # return self.request.user.is_superuser
     permission_required = "shopapp.add_product"
     model = Product
-    fields = "name", "description", "price", "discount"
+    fields = "name", "description", "price", "discount", "preview"
     success_url = reverse_lazy("shopapp:products_list")
 
     def form_valid(self, form):
@@ -89,7 +89,7 @@ class ProductUpdateView(UserPassesTestMixin, UpdateView):
         if self.request.user.is_superuser:
             return True
         return Product.created_by == self.request.user.pk
-    fields = "name", "description", "price", "discount"
+    fields = "name", "description", "price", "discount", "preview"
     template_name_suffix = "_update_form"
 
     def get_success_url(self):
