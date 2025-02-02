@@ -61,29 +61,23 @@ class Product(models.Model):
 
             file_path = product_preview_directory_path(self, os.path.basename(self._preview_pending.name))
 
-            # Открываем файл для чтения, обрабатывая различные типы self._preview_pending
             if isinstance(self._preview_pending, File):
                 file_content = self._preview_pending.read()
 
             elif isinstance(self._preview_pending, str) and default_storage.exists(self._preview_pending):
                 file_content = default_storage.open(self._preview_pending, 'rb').read()
             else:
-                # Если self._preview_pending не является File, строкой с файлом или файл не найден, то не делаем ничего
                 self._preview_pending = None
 
-            # Сохраняем файл в новой директории
             if isinstance(self._preview_pending, File):
                 new_file_path = default_storage.save(file_path, self._preview_pending)
             else:
                 new_file_path = default_storage.save(file_path, default_storage.open(self._preview_pending, 'rb'))
 
-            # Обновляем поле preview новым путем
             self.preview = new_file_path
 
-            # Сохраняем модель с обновленным полем preview
             super().save(*args, **kwargs)
 
-            # Удаляем временный файл
             if isinstance(self._preview_pending, str) and default_storage.exists(self._preview_pending):
                 default_storage.delete(self._preview_pending)
 
