@@ -1,8 +1,12 @@
 import os
-
-from django.contrib.auth.models import User
 from django.db import models
+from django.conf import settings
 from django.utils.deconstruct import deconstructible
+from myauth.models import User
+from django.core.files.base import ContentFile
+from django.core.files.storage import default_storage
+from django.core.files.uploadedfile import UploadedFile
+from django.core.files import File
 
 from myauth.models import Profile
 
@@ -30,7 +34,7 @@ class Product(models.Model):
     create_at = models.DateTimeField(auto_now_add=True)
     archived = models.BooleanField(default=False)
     created_by = models.ForeignKey(User, on_delete=models.PROTECT, related_name='products_created')
-    preview = models.ImageField(null=True, blank=True, upload_to=None)  # Убираем upload_to
+    preview = models.ImageField(null=True, blank=True, upload_to=None)
     _preview_pending = None
 
     def __init__(self, *args, **kwargs):
@@ -39,17 +43,50 @@ class Product(models.Model):
 
     def save(self, *args, **kwargs):
         is_new = not self.pk
+        old_preview = None
 
-        if is_new and self.preview:
+        if self.preview and self._preview_pending is None and not is_new:
+            self._preview_pending = self.preview
+            self.preview = None
+        elif self.preview and not is_new and self._preview_pending != self.preview:
+            self.old_preview = self.preview
+            self._preview_pending = self.preview
+            self.preview = None
+        elif is_new and self.preview:
             self._preview_pending = self.preview
             self.preview = None
 
-        super().save(*args, **kwargs)
+
         if self._preview_pending:
+
             file_path = product_preview_directory_path(self, os.path.basename(self._preview_pending.name))
 
-            self.preview.name = file_path
+            # Открываем файл для чтения, обрабатывая различные типы self._preview_pending
+            if isinstance(self._preview_pending, File):
+                file_content = self._preview_pending.read()
+
+            elif isinstance(self._preview_pending, str) and default_storage.exists(self._preview_pending):
+                file_content = default_storage.open(self._preview_pending, 'rb').read()
+            else:
+                # Если self._preview_pending не является File, строкой с файлом или файл не найден, то не делаем ничего
+                self._preview_pending = None
+
+            # Сохраняем файл в новой директории
+            if isinstance(self._preview_pending, File):
+                new_file_path = default_storage.save(file_path, self._preview_pending)
+            else:
+                new_file_path = default_storage.save(file_path, default_storage.open(self._preview_pending, 'rb'))
+
+            # Обновляем поле preview новым путем
+            self.preview = new_file_path
+
+            # Сохраняем модель с обновленным полем preview
             super().save(*args, **kwargs)
+
+            # Удаляем временный файл
+            if isinstance(self._preview_pending, str) and default_storage.exists(self._preview_pending):
+                default_storage.delete(self._preview_pending)
+
             self._preview_pending = None
 
     def __str__(self) -> str:
