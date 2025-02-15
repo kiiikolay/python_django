@@ -15,7 +15,7 @@ from django.urls import reverse_lazy
 
 from myauth.models import Profile
 from requestdataapp.forms import UploadFileForm
-from .models import Product, Order
+from .models import Product, Order, ProductImage
 from .forms import ProductForm, OrderForm, GroupForm
 from django.views import View
 from django.contrib.auth import authenticate, login, logout
@@ -53,7 +53,8 @@ class GroupsListView(View):
 
 class ProductDetailsView(DetailView):
     template_name = "shopapp/product-details.html"
-    model = Product
+    # model = Product
+    queryset = Product.objects.prefetch_related("image")
     context_object_name = "product"
 
 
@@ -76,6 +77,7 @@ class ProductCreateView(PermissionRequiredMixin, CreateView):
     permission_required = "shopapp.add_product"
     model = Product
     fields = "name", "description", "price", "discount", "preview"
+    # form_class = ProductForm
     success_url = reverse_lazy("shopapp:products_list")
 
     def form_valid(self, form):
@@ -89,7 +91,8 @@ class ProductUpdateView(UserPassesTestMixin, UpdateView):
         if self.request.user.is_superuser:
             return True
         return Product.created_by == self.request.user.pk
-    fields = "name", "description", "price", "discount", "preview"
+#     fields = "name", "description", "price", "discount", "preview"
+    form_class = ProductForm
     template_name_suffix = "_update_form"
 
     def get_success_url(self):
@@ -97,6 +100,16 @@ class ProductUpdateView(UserPassesTestMixin, UpdateView):
             "shopapp:product_details",
             kwargs={"pk": self.object.pk},
         )
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        for image in form.files.getlist("images"):
+            ProductImage.objects.create(
+                product=self.object,
+                image=image,
+            )
+        return response
+
 
 class ProductDeleteView(DeleteView):
     model = Product
