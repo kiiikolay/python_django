@@ -1,6 +1,6 @@
 from http.client import responses
 from pkgutil import resolve_name
-
+from django.shortcuts import render, redirect, reverse, get_object_or_404
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required, permission_required, user_passes_test
 from django.contrib.auth.forms import UserCreationForm
@@ -9,9 +9,13 @@ from django.http import HttpRequest, HttpResponse, HttpResponseRedirect, JsonRes
 from django.shortcuts import render
 from django.template.context_processors import request
 from django.urls import reverse_lazy
-from django.views.generic import TemplateView, CreateView
+from django.views.generic import TemplateView, ListView, DetailView, CreateView, DeleteView, UpdateView
 from .models import Profile
+from .forms import ProfileForm
 from django.views import View
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin, UserPassesTestMixin
+from django.contrib.auth.models import User
+import logging
 
 
 def start_auth_view(request: HttpRequest):
@@ -19,6 +23,35 @@ def start_auth_view(request: HttpRequest):
 
 class AboutMeView(TemplateView):
     template_name = "myauth/about-me.html"
+    # model = Product
+    queryset = Profile.objects.all()
+    context_object_name = "profile"
+
+class AboutMeDetailView(DetailView):
+    template_name = "myauth/about-me-details.html"
+    # model = Product
+    queryset = Profile.objects.all()
+    context_object_name = "profile"
+
+class ProfileAvatarUpdateView(UserPassesTestMixin, UpdateView):
+    model = Profile
+    def test_func(self):
+        profile = self.get_object()
+        logging.warning(f"{profile.user_id}, {self.request.user.id}")
+        if self.request.user.is_superuser:
+            return True
+        elif profile.user_id == self.request.user.id:
+            return True
+#     fields = "name", "description", "price", "discount", "preview"
+    form_class = ProfileForm
+    template_name_suffix = "_update_form"
+
+    def get_success_url(self):
+        return reverse(
+            "myauth:about-me-details",
+            kwargs={"pk": self.object.pk},
+        )
+
 
 class RegisterView(CreateView):
     form_class = UserCreationForm
@@ -66,6 +99,17 @@ def get_session_view(request: HttpRequest) -> HttpResponse:
 class FooBarView(View):
     def get(self, request: HttpRequest) -> JsonResponse:
           return JsonResponse({'foo': 'bar', 'spam': 'eggs'})
+
+class ProfileListView(ListView):
+    template_name = 'myauth/profiles-list.html'
+    # model = Profile
+    context_object_name = "profiles"
+    queryset = Profile.objects.all
+
+
+
+
+
 
 
 """ ____________________________________________________________________________________

@@ -14,14 +14,14 @@
         <div>Архив : {{ product.archived }}</div>
 
         {% if product.preview %}
-            <img src="{{ product.preview.url }}}" alt="{{ product.preview.name }}">
+            <img src="{{ product.preview.url }}" alt="{{ product.preview.name }}" style="height: 200px; width: 180px">
         {% endif %}
 
         <h3>Images</h3>
         <div>
             {% for img in product.image.all %}
                 <div>
-                    <img src="{{ img.image.url }}" alt="{{ img.image.name }}">
+                    <img src="{{ img.image.url }}" alt="{{ img.image.name }}" style="height: 200px; width: 180px">
                     <div>{{ img.descriptions }}</div>
                 </div>
             {% empty %}

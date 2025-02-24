@@ -38,7 +38,7 @@ class Product(models.Model):
         null=True,
         blank=True,
         upload_to=product_preview_directory_path
-    )  # Указываем upload_to здесь
+    )
     _preview_pending = None
 
     def __init__(self, *args, **kwargs):
@@ -47,9 +47,9 @@ class Product(models.Model):
         self.old_preview = None
 
     def save(self, *args, **kwargs):
-        is_new = not self.pk  # Проверяем, новый ли объект
+        is_new = not self.pk
         if is_new:
-            super().save(*args, **kwargs)  # Сначала сохраняем объект, чтобы получить pk
+            super().save(*args, **kwargs)
 
         if self.preview and self._preview_pending is None:
             self._preview_pending = self.preview
@@ -64,7 +64,7 @@ class Product(models.Model):
                 file_content = default_storage.open(self._preview_pending, 'rb').read()
             else:
                 self._preview_pending = None
-                return  # Выходим из функции если нет файла для обработки
+                return
 
             if isinstance(self._preview_pending, File):
                 new_file_path = default_storage.save(file_path, self._preview_pending)
@@ -74,7 +74,7 @@ class Product(models.Model):
             self.preview = new_file_path
             self._preview_pending = None
 
-        super().save(*args, **kwargs)  # Сохраняем с учетом изменений preview
+        super().save(*args, **kwargs)
 
     def __str__(self) -> str:
         return f"Product(pk={self.pk}, name={self.name!r})"
