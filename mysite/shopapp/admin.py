@@ -3,11 +3,14 @@ from django.contrib.admin.templatetags.admin_list import admin_actions
 from django.db.models import QuerySet
 from django.http import HttpRequest
 
-from .models import Product, Order
+from .models import Product, Order, ProductImage
 from .admin_mixins import ExportAsCSVMixin
 
 class OrderInline (admin.TabularInline):
     model = Product.orders.through
+
+class ProductInline(admin.StackedInline):
+    model = ProductImage
 
 @admin.action(description="Archive products")
 def merk_archived(modeladmin: admin.ModelAdmin, request: HttpRequest, queryset: QuerySet):
@@ -27,6 +30,7 @@ class ProductAdmin(admin.ModelAdmin, ExportAsCSVMixin):
     ]
     inlines = [
         OrderInline,
+        ProductInline
     ]
     list_display = "pk", "name", "description_short", "price", "discount", "archived"
     list_display_links = "pk", "name"
@@ -40,11 +44,14 @@ class ProductAdmin(admin.ModelAdmin, ExportAsCSVMixin):
             "fields": ("price", "discount"),
             "classes": ("wide", "collapse"),
         }),
+        ("Images", {
+            "fields": ("preview", ),
+        }),
         ("Extra options", {
             "fields": ("archived",),
             "classes": ("collapse",),
             "description": "Extra options. Field 'arhived' is for soft delete",
-        })
+        }),
     ]
 
     def description_short(self, obj: Product) -> str:

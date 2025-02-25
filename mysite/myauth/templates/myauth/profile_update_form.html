@@ -1,11 +1,11 @@
-{% extends 'shopapp/baseshop.html' %}
+{% extends 'myauth/baseauth.html' %}
 
 {% block title %}
-    Обновление продукта
+    Обновление аватарки
 {% endblock %}
 
 {% block body %}
-    <div>Обновление продукта</div>
+    <div>Обновление аватарки</div>
     <div>
         <form method="post" enctype="multipart/form-data">
             {% csrf_token %}
@@ -14,7 +14,7 @@
         </form>
     </div>
     <div>
-        <a href="{% url 'shopapp:product_details' pk=object.pk %}"
-        >Вернуться к продукту №{{ object.pk }}</a>
+        <a href="{% url 'myauth:about-me-details' pk=profile.pk %}"
+        >Вернуться к деталям</a>
     </div>
 {% endblock %}

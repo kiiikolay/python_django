@@ -1,0 +1,34 @@
+{% extends 'myauth/baseauth.html' %}
+
+{% block title %}
+    Обо мне
+{% endblock %}
+
+{% block body %}
+    <div>
+        <h1>Информация о пользователе</h1>
+        {% if user.is_authenticated %}
+            {% if profile.avatar %}
+                <img src="{{ user.profile.avatar.url }}" alt="{{ user.profile.avatar.name }}" style="height: 200px; width: 180px">
+            {% endif %}
+            <p>Ник пользователя: {{ profile.user.username }}</p>
+            <p>Имя пользователя: {{ profile.user.first_name }}</p>
+            <p>Фамилия пользователя: {{ profile.user.last_name }}</p>
+            <p>Email: {{ profile.user.email }}</p>
+            <p>Bio: {{ user.profile.bio }}</p>
+        {% else %}
+            <h2>Пользователь анонимен</h2>
+        {% endif %}
+
+        {% if profile.user_id == user.pk and user.is_staff %}
+            <div>
+                <a href="{% url 'myauth:update-avatar' pk=profile.pk %}">Обновить аватар</a>
+            </div>
+        {% endif %}
+        <div>
+        <a href="{% url 'myauth:profiles-list' %}">К списку профилей</a>
+        </div>
+    </div>
+
+
+{% endblock %}

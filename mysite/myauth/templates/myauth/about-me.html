@@ -5,15 +5,21 @@
 {% endblock %}
 
 {% block body %}
-    <h1>Информация о пользователе</h1>
-    {% if user.is_authenticated %}
-        <h2>Детали</h2>
-        <p>Ник пользователя: {{ user.username }}</p>
-        <p>Имя пользователя: {{ user.first_name }}</p>
-        <p>Фамилия пользователя: {{ user.last_name }}</p>
-        <p>Email: {{ user.email }}</p>
-        <p>Bio: {{ user.profile.bio }}</p>
-    {% else %}
-        <h2>Пользователь анонимен</h2>
-    {% endif %}
+    <div>
+        <h1>Информация о пользователе</h1>
+        {% if user.is_authenticated %}
+            {% if profile.avatar %}
+                <img src="{{ user.profile.avatar.url }}" alt="{{ user.profile.avatar.name }}" style="height: 200px; width: 180px">
+            {% endif %}
+            <p>Ник пользователя: {{ user.username }}</p>
+            <p>Имя пользователя: {{ user.first_name }}</p>
+            <p>Фамилия пользователя: {{ user.last_name }}</p>
+            <p>Email: {{ user.email }}</p>
+            <p>Bio: {{ user.profile.bio }}</p>
+        {% else %}
+            <h2>Пользователь анонимен</h2>
+        {% endif %}
+    </div>
+
+
 {% endblock %}

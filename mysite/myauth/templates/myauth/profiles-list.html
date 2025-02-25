@@ -1,0 +1,30 @@
+{% extends 'myauth/baseauth.html' %}
+
+{% block title %}
+    Список профилей
+{% endblock %}
+
+{% block body %}
+
+    <h1>Профили</h1>
+        {% if profiles %}
+            <div>
+
+            {% for profile in profiles %}
+                <div>
+                    {% if profile.avatar %}
+                        <img src="{{ user.profile.avatar.url }}" alt="{{ user.profile.avatar.name }}" style="height: 200px; width: 180px">
+                    {% endif %}
+                    <p>Name: <a href="{% url 'myauth:about-me-details' pk=profile.pk %}">{{ profile.user.username }}</a></p>
+                    <p>Описание: {% firstof profile.bio 'Нет описания'%}</p>
+
+                </div>
+            {% endfor %}
+
+            </div>
+
+        {% else %}
+            <h3>Нет профилей</h3>
+        {% endif %}
+
+{% endblock %}
