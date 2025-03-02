@@ -14,6 +14,7 @@ from .views import (
     ProfileListView,
     AboutMeDetailView,
     ProfileAvatarUpdateView,
+    HelloView,
 )
 
 app_name = "myauth"
@@ -28,6 +29,7 @@ urlpatterns = (
             redirect_authenticated_user=True
         ),
         name="login"),
+    path("hello/", HelloView.as_view(), name='hello'),
     path("reg/", RegisterView.as_view(), name='register'),
     path("profiles-list/", ProfileListView.as_view(), name='profiles-list'),
     path("about-me/", AboutMeView.as_view(), name='about-me'),
