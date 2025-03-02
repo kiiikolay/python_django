@@ -1,47 +1,66 @@
 {% extends 'shopapp/baseshop.html' %}
 
+{% load i18n %}
+
 {% block title %}
     Детали продукта
 {% endblock %}
 
 {% block body %}
-    <h1>Продукт <strong>{{ product.name }}</strong></h1>
 
-    <div>
-        <div>Описание: <em>{{ product.description }}</em></div>
-        <div>Цена: {{ product.price }}</div>
-        <div>Скидка: {{ product.discount }}</div>
-        <div>Архив : {{ product.archived }}</div>
+        <h1>{% translate 'Продукт' %} <strong>{{ product.name }}</strong></h1>
 
-        {% if product.preview %}
-            <img src="{{ product.preview.url }}" alt="{{ product.preview.name }}" style="height: 200px; width: 180px">
-        {% endif %}
-
-        <h3>Images</h3>
         <div>
-            {% for img in product.image.all %}
-                <div>
-                    <img src="{{ img.image.url }}" alt="{{ img.image.name }}" style="height: 200px; width: 180px">
-                    <div>{{ img.descriptions }}</div>
-                </div>
-            {% empty %}
-                <div>Изображений ещё не загружено</div>
-            {% endfor %}
+
+            <div>
+                    <div>{% translate 'Описание' %}: <em>{{ product.description }}</em></div>
+                    <div>{% translate 'Цена' %}: {{ product.price }}</div>
+                    <div>{% translate 'Скидка' %}: {{ product.discount }}</div>
+                    <div>{% translate 'Архив' %}: {{ product.archived }}</div>
+            </div>
+
+
+            {% if product.preview %}
+                <img src="{{ product.preview.url }}" alt="{{ product.preview.name }}" style="height: 200px; width: 180px">
+            {% endif %}
+
+            <h3>
+                {% blocktranslate count image_count=product.image.all|length %}
+                    One image
+                    {% plural %}
+                    {{ image_count }} images
+                {% endblocktranslate %}
+            </h3>
+            <div>
+                {% for img in product.image.all %}
+                    <div>
+                        <img src="{{ img.image.url }}" alt="{{ img.image.name }}" style="height: 200px; width: 180px">
+                        <div>{{ img.descriptions }}</div>
+                    </div>
+                {% empty %}
+                    <div>{% translate 'Изображений ещё не загружено' %}</div>
+                {% endfor %}
+            </div>
         </div>
-    </div>
+
 
     {% if product.created_by_id == user.pk and perms.shopapp.change_product or user.is_superuser %}
-        <div>
-            <a href="{% url 'shopapp:product_update' pk=product.pk%}">Обновить продукт</a>
-        </div>
+        {% url 'shopapp:product_update' pk=product.pk as update_url %}
+        {% url 'shopapp:product_archive' pk=product.pk as archived_url %}
+        {% blocktranslate %}
+            <div>
+                <a href="{{ update_url }}">Обновить продукт</a>
+            </div>
 
-        <div>
-            <a href="{% url 'shopapp:product_archive' pk=product.pk%}">Архивировать продукт</a>
-        </div>
+            <div>
+                <a href="{{ archived_url }}">Архивировать продукт</a>
+            </div>
+        {% endblocktranslate %}
     {% endif %}
 
     <div>
-        <a href="{% url 'shopapp:products_list' %}">Вернуться к списку продуктов</a>
+        <a href="{% url 'shopapp:products_list' %}">{% translate 'Вернуться к списку продуктов' %}</a>
     </div>
+
 
 {% endblock %}

@@ -7,6 +7,7 @@ from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
 from django.core.files.uploadedfile import UploadedFile
 from django.core.files import File
+from django.utils.translation import gettext_lazy as _, gettext as __
 
 from myauth.models import Profile
 
@@ -26,6 +27,8 @@ product_preview_directory_path = ProductPreviewDirectoryPath()
 class Product(models.Model):
     class Meta:
         ordering = ["name", "price"]
+        verbose_name = _("Product")
+        verbose_name_plural = _("Products")
 
     name = models.CharField(max_length=100)
     description = models.TextField(null=False, blank=True)
@@ -103,6 +106,9 @@ def __str__(self) -> str:
 
 
 class Order(models.Model):
+    class Meta():
+        verbose_name = _("Order")
+        verbose_name_plural = _("Orders")
     deliveri_address = models.TextField(null=True, blank=False)
     promocode = models.CharField(max_length=20, null=False, blank=True)
     create_at = models.DateTimeField(auto_now_add=True)

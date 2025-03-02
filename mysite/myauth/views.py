@@ -1,4 +1,5 @@
 from http.client import responses
+from itertools import product
 from pkgutil import resolve_name
 from django.shortcuts import render, redirect, reverse, get_object_or_404
 from django.contrib.auth import authenticate, login
@@ -15,6 +16,8 @@ from .forms import ProfileForm
 from django.views import View
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.models import User
+from django.utils.translation import gettext_lazy as _, gettext as __, ngettext_lazy
+
 import logging
 
 
@@ -105,6 +108,23 @@ class ProfileListView(ListView):
     # model = Profile
     context_object_name = "profiles"
     queryset = Profile.objects.all
+
+class HelloView(View):
+    welcome_message = _("welcome hello world")
+
+    def get(self, request: HttpRequest) -> HttpResponse:
+        items_str = request.GET("items") or 0
+        items = int(items_str)
+        products_line = ngettext_lazy(
+            "one product",
+            "{count} products",
+            items,
+        )
+        products_line = products_line.format(count=items)
+        return HttpResponse(
+            f"<h1>{self.welcome_message}</h1>"
+            f"\n<h2>{products_line}</h2>"
+        )
 
 
 
