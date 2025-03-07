@@ -82,7 +82,7 @@ class OrderViewSet(ModelViewSet):
         # Получаем текущего пользователя из запроса
         user = self.request.user
         # Сохраняем объект, передавая текущего пользователя в поле updated_by
-        serializer.save(updated_by=user)  # Предполагая, что у вас есть поле updated_by
+        serializer.save(updated_by=user)
 
 @api_view()
 def api_hello_view(request: Request) -> Response:
