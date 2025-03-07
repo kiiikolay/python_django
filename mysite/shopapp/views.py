@@ -1,9 +1,9 @@
 from http.client import responses
 from importlib.resources import contents
-from django.contrib.auth.models import Group, User
 from itertools import product
-from  timeit import default_timer
+from timeit import default_timer
 
+from django.contrib.auth.models import Group, User
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.views import LogoutView
 from django.contrib.messages import success
@@ -12,13 +12,82 @@ from django.shortcuts import render, redirect, reverse, get_object_or_404
 from django.utils.translation.template import context_re
 from django.views.generic import TemplateView, ListView, DetailView, CreateView, DeleteView, UpdateView
 from django.urls import reverse_lazy
+from django.views import View
+from django.contrib.auth import authenticate, login, logout
+from django_filters.rest_framework import DjangoFilterBackend
 
 from myauth.models import Profile
 from requestdataapp.forms import UploadFileForm
+
+from rest_framework.request import Request
+from rest_framework.response import Response
+from rest_framework.decorators import api_view
+from rest_framework.viewsets import ModelViewSet
+from rest_framework.filters import SearchFilter, OrderingFilter
+
 from .models import Product, Order, ProductImage
 from .forms import ProductForm, OrderForm, GroupForm
-from django.views import View
-from django.contrib.auth import authenticate, login, logout
+from .serializers import ProductSerializer, OrderSerializer
+
+class ProductViewSet(ModelViewSet):
+    queryset = Product.objects.all()
+    serializer_class = ProductSerializer
+    filter_backends = [
+        SearchFilter,
+        DjangoFilterBackend,
+        OrderingFilter,
+    ]
+    search_fields = ["name", "description"]
+    filterset_fields = [
+        "name",
+        "description",
+        "price",
+        "discount",
+        "archived",
+    ]
+    ordering_fields = [
+        "name",
+        "price",
+        "discount",
+    ]
+
+class OrderViewSet(ModelViewSet):
+    queryset = Order.objects.all()
+    serializer_class = OrderSerializer
+    filter_backends = [
+        SearchFilter,
+        DjangoFilterBackend,
+        OrderingFilter,
+    ]
+    search_fields = ["products"]
+    filterset_fields = [
+        "deliveri_address",
+        "promocode",
+        "user",
+        "products",
+    ]
+    ordering_fields = [
+        "deliveri_address",
+        "products",
+        "create_at",
+    ]
+
+    def perform_create(self, serializer):
+        # Получаем текущего пользователя из запроса
+        user = self.request.user
+        # Сохраняем объект, передавая текущего пользователя в поле created_by
+        serializer.save(created_by=user)
+
+    def perform_update(self, serializer):
+        # Получаем текущего пользователя из запроса
+        user = self.request.user
+        # Сохраняем объект, передавая текущего пользователя в поле updated_by
+        serializer.save(updated_by=user)  # Предполагая, что у вас есть поле updated_by
+
+@api_view()
+def api_hello_view(request: Request) -> Response:
+    return Response({"message": "Hello!"})
+
 
 class ShopIndexView(View):
     def get(self, request: HttpRequest) -> HttpResponse:

@@ -1,6 +1,8 @@
 from tempfile import template
 from django.contrib.auth.views import LoginView
-from django.urls import path
+from django.urls import path, include
+from rest_framework.routers import DefaultRouter
+
 from .views import (
     ShopIndexView,
     GroupsListView,
@@ -16,10 +18,18 @@ from .views import (
     OrderCreateView,
     OrderDeleteView,
     OrdersDataExportView,
+    api_hello_view,
+    ProductViewSet,
+    OrderViewSet,
+
 
 )
 
 app_name = "shopapp"
+
+routers = DefaultRouter()
+routers.register("products", ProductViewSet)
+routers.register("orders", OrderViewSet)
 
 urlpatterns = [
     path("", ShopIndexView.as_view(), name='index'),
@@ -36,9 +46,5 @@ urlpatterns = [
     path("orders/<int:pk>/", OrdersDetailViev.as_view(), name='order_details'),
     path("orders/<int:pk>/update", OrderUpdateView.as_view(), name='order_update'),
     path("orders/<int:pk>/confirm_delete/", OrderDeleteView.as_view(), name='order_delete'),
-
-
-
-
-
+    path("api/", include(routers.urls)),
 ]
