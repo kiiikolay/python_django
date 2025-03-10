@@ -25,6 +25,12 @@ product_preview_directory_path = ProductPreviewDirectoryPath()
 
 
 class Product(models.Model):
+    """
+    Модель Product представляет товар,
+    который можно продавать в интернет-магазине.
+
+    Заказы тут: :model:`shopapp.Order`
+    """
     class Meta:
         ordering = ["name", "price"]
         verbose_name = _("Product")

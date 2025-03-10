@@ -1,23 +1,21 @@
-from http.client import responses
-from importlib.resources import contents
-from itertools import product
+"""
+В этом модуле лежат различные наборы представлений.
+
+Разные view интернет-магазина: по товарам, заказам и т.д.
+"""
+
 from timeit import default_timer
 
 from django.contrib.auth.models import Group, User
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin, UserPassesTestMixin
-from django.contrib.auth.views import LogoutView
-from django.contrib.messages import success
 from django.http import HttpRequest, HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import render, redirect, reverse, get_object_or_404
-from django.utils.translation.template import context_re
 from django.views.generic import TemplateView, ListView, DetailView, CreateView, DeleteView, UpdateView
 from django.urls import reverse_lazy
 from django.views import View
-from django.contrib.auth import authenticate, login, logout
+# from django.contrib.auth import authenticate, login, logout
 from django_filters.rest_framework import DjangoFilterBackend
 
-from myauth.models import Profile
-from requestdataapp.forms import UploadFileForm
 
 from rest_framework.request import Request
 from rest_framework.response import Response
@@ -28,8 +26,14 @@ from rest_framework.filters import SearchFilter, OrderingFilter
 from .models import Product, Order, ProductImage
 from .forms import ProductForm, OrderForm, GroupForm
 from .serializers import ProductSerializer, OrderSerializer
+from drf_spectacular.utils import extend_schema, OpenApiResponse
 
+@extend_schema(description="Product view CRUD")
 class ProductViewSet(ModelViewSet):
+    """
+    Набор представлений для действий над Product
+    Полный CRUD для сущностей товара
+    """
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
     filter_backends = [
@@ -50,6 +54,17 @@ class ProductViewSet(ModelViewSet):
         "price",
         "discount",
     ]
+
+    @extend_schema(
+        summary="Get one product by ID",
+        description="Retrive **product**, returns 404 if not found",
+        responses={
+            200: ProductSerializer,
+            404: OpenApiResponse(description="Empty response, product by id not found"),
+        }
+    )
+    def retrieve(self, *args, **kwargs):
+        return super().retrieve(*args, **kwargs)
 
 class OrderViewSet(ModelViewSet):
     queryset = Order.objects.all()
@@ -261,6 +276,3 @@ class OrdersDataExportView(View):
         ]
 
         return JsonResponse({"orders": orders_data})
-
-
-
