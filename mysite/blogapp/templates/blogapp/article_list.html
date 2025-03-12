@@ -1,0 +1,24 @@
+{% extends 'shopapp/baseshop.html' %}
+
+{% block title %}
+     Список статей
+{% endblock %}
+
+{% block body %}
+    <h1>Статьи</h1>
+    {% if object_list %}
+        <ul>
+            {% for article in object_list %}
+                <div>
+                    <p>Заголовок статьи: {{ article.title }}</p>
+                    <p>Дата публикации: {{ article.pub_date }}</p>
+                    <p>Имя автора: {{ article.author.name }}</p>
+                    <p>Категория: {{ article.category.name }}</p>
+                    <p>Теги: {{ article.tag.name }}</p>
+                </div>
+
+            {% endfor %}
+        </ul>
+    {% endif %}
+
+{% endblock %}

@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'myauth.apps.MyauthConfig',
     'home.apps.HomeConfig',
     'myapiapp.apps.MyapiappConfig',
+    'blogapp.apps.BlogappConfig',
 
     'rest_framework',
     'django_filters',
@@ -171,4 +172,26 @@ SPECTACULAR_SETTINGS = {
     "DESCRIPTION": "My site with shop app and custom auth",
     "VERSION": "1.0.0",
     "SERVE_INCLUDE_SCHEMA": False,
+}
+
+LOGGING = {
+    'version': 1,
+    'filters': {
+        'require_debug_true': {
+            '()': 'django.utils.log.RequireDebugTrue',
+        },
+    },
+    'handlers': {
+        'console': {
+            'level': 'DEBUG',
+            'filters': ['require_debug_true'],
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'loggers': {
+        'django.db.backends': {
+            'level': 'DEBUG',
+            'handlers': ['console'],
+        }
+    },
 }

@@ -36,8 +36,8 @@ class Product(models.Model):
         verbose_name = _("Product")
         verbose_name_plural = _("Products")
 
-    name = models.CharField(max_length=100)
-    description = models.TextField(null=False, blank=True)
+    name = models.CharField(max_length=100, db_index=True)
+    description = models.TextField(null=False, blank=True, db_index=True)
     price = models.DecimalField(default=0, max_digits=8, decimal_places=2)
     discount = models.SmallIntegerField(default=0)
     create_at = models.DateTimeField(auto_now_add=True)
