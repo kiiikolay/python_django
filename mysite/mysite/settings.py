@@ -12,7 +12,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 
 from pathlib import Path
 
-from django.conf.global_settings import LOGIN_REDIRECT_URL, LOGIN_URL
+from django.conf.global_settings import LOGIN_REDIRECT_URL, LOGIN_URL, INTERNAL_IPS
 from django.urls import reverse_lazy
 from django.utils.translation import gettext_lazy as _
 from drf_spectacular.settings import SPECTACULAR_DEFAULTS
@@ -30,8 +30,21 @@ SECRET_KEY = 'django-insecure-#86sem(3!ma=+nq@%9$^m8+(b78$5c^)u)(1i3e*srp_0jb0_+
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    "0.0.0.0",
+    "127.0.0.1",
+]
+INTERNAL_IPS = [
+    "127.0.0.1",
+]
 
+if DEBUG:
+    import socket
+    hostname, _, ips = socket.gethostbyname_ex(socket.gethostname())
+    INTERNAL_IPS.append("10.0.2.2")
+    INTERNAL_IPS.extend(
+        [ip[: ip.rfind(".")] +".1" for ip in ips]
+    )
 
 # Application definition
 
@@ -139,8 +152,8 @@ LOCALE_PATHS = [
 ]
 
 LENGUAGES = [
-    ('en', _('English')),
-    ('en', _('Russian'))
+    # ('en', _('English')),
+    # ('en', _('Russian'))
 ]
 
 
