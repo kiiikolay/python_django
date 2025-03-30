@@ -56,6 +56,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.admindocs',
+    'django.contrib.sitemaps',
 
     'shopapp.apps.ShopappConfig',
     'requestdataapp.apps.RequestdataappConfig',
@@ -66,7 +67,7 @@ INSTALLED_APPS = [
 
     'rest_framework',
     'django_filters',
-    'drf_spectacular'
+    'drf_spectacular',
 ]
 
 MIDDLEWARE = [
