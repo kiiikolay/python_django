@@ -3,8 +3,9 @@
 
 Разные view интернет-магазина: по товарам, заказам и т.д.
 """
-
+from pickle import FALSE
 from timeit import default_timer
+from csv import DictWriter
 
 from django.contrib.auth.models import Group, User
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin, UserPassesTestMixin
@@ -19,7 +20,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 
 from rest_framework.request import Request
 from rest_framework.response import Response
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, action
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.filters import SearchFilter, OrderingFilter
 
@@ -63,8 +64,33 @@ class ProductViewSet(ModelViewSet):
             404: OpenApiResponse(description="Empty response, product by id not found"),
         }
     )
+    @action(methods="get", detail=False)
+    def download_csv(self, request: Request):
+        response = HttpResponse(content_type="text/csv")
+        filename = "products-export.csv"
+        response["Content-Disposition"] = f"attchment; filename={filename}"
+        queryset = self.filter_queryset(self.get_queryset())
+        fields = [
+            "name",
+            "description",
+            "price",
+            "discount",
+        ]
+        queryset = queryset.only(*fields)
+        writer = DictWriter(response, fieldnames=fields)
+        writer.writeheader()
+
+        for product in queryset:
+            writer.writerow({
+                field: getattr(product, field)
+                for field in fields
+            })
+
+        return response
+
     def retrieve(self, *args, **kwargs):
         return super().retrieve(*args, **kwargs)
+
 
 class OrderViewSet(ModelViewSet):
     queryset = Order.objects.all()
@@ -102,7 +128,6 @@ class OrderViewSet(ModelViewSet):
 @api_view()
 def api_hello_view(request: Request) -> Response:
     return Response({"message": "Hello!"})
-
 
 class ShopIndexView(View):
     def get(self, request: HttpRequest) -> HttpResponse:
@@ -142,7 +167,6 @@ class ProductDetailsView(DetailView):
     queryset = Product.objects.prefetch_related("image")
     context_object_name = "product"
 
-
 class ProductsListView(LoginRequiredMixin, ListView):
     template_name = 'shopapp/products-list.html'
     # model = Product
@@ -169,7 +193,6 @@ class ProductCreateView(PermissionRequiredMixin, CreateView):
         form.instance.created_by = self.request.user
         return super().form_valid(form)
 
-
 class ProductUpdateView(UserPassesTestMixin, UpdateView):
     model = Product
     def test_func(self):
@@ -194,7 +217,6 @@ class ProductUpdateView(UserPassesTestMixin, UpdateView):
                 image=image,
             )
         return response
-
 
 class ProductDeleteView(DeleteView):
     model = Product
