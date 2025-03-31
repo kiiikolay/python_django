@@ -16,6 +16,7 @@ from django.urls import reverse_lazy
 from django.views import View
 # from django.contrib.auth import authenticate, login, logout
 from django_filters.rest_framework import DjangoFilterBackend
+from django.contrib.syndication.views import Feed
 
 
 from rest_framework.request import Request
@@ -23,11 +24,33 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view, action
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.filters import SearchFilter, OrderingFilter
+from rest_framework.parsers import MultiPartParser
+from yaml import serialize
 
+from .common import save_csv_products, save_csv_orders
 from .models import Product, Order, ProductImage
 from .forms import ProductForm, OrderForm, GroupForm
 from .serializers import ProductSerializer, OrderSerializer
 from drf_spectacular.utils import extend_schema, OpenApiResponse
+
+class LatestProductsFeed(Feed):
+    title = "Блог продуктов"
+    description = "Изменения поступают в блок когда вы изменяете содержимое или создаёте новые продукты"
+    link = reverse_lazy("shopapp:products_list")
+
+    def items(self):
+        return (
+            Product.objects
+                .select_related("created_by").all()
+                .filter(archived=False)
+                .order_by("-create_at")[:5]
+    )
+
+    def item_title(self, item: Product):
+        return item.name
+
+    def item_description(self, item: Product):
+        return item.description[:200]
 
 @extend_schema(description="Product view CRUD")
 class ProductViewSet(ModelViewSet):
@@ -88,6 +111,19 @@ class ProductViewSet(ModelViewSet):
 
         return response
 
+    @action(
+        detail=False,
+        methods=["post"],
+        parser_classes=[MultiPartParser],
+    )
+    def uploap_csv(self, request: Request):
+        products = save_csv_products(
+            request.FILES["file"].file,
+            encoding=request.encoding,
+        )
+        serializer = self.get_serializer(products, many=True)
+        return Response(serializer.data)
+
     def retrieve(self, *args, **kwargs):
         return super().retrieve(*args, **kwargs)
 
@@ -124,6 +160,43 @@ class OrderViewSet(ModelViewSet):
         user = self.request.user
         # Сохраняем объект, передавая текущего пользователя в поле updated_by
         serializer.save(updated_by=user)
+
+    @action(methods="get", detail=False)
+    def download_csv(self, request: Request):
+        response = HttpResponse(content_type="text/csv")
+        filename = "orders-export.csv"
+        response["Content-Disposition"] = f"attchment; filename={filename}"
+        queryset = self.filter_queryset(self.get_queryset())
+        fields = [
+            "deliveri_address",
+            "promocode",
+            "user",
+            "products",
+        ]
+        queryset = queryset.only(*fields)
+        writer = DictWriter(response, fieldnames=fields)
+        writer.writeheader()
+
+        for order in queryset:
+            writer.writerow({
+                field: getattr(order, field)
+                for field in fields
+            })
+
+        return response
+
+    @action(
+        detail=False,
+        methods=["post"],
+        parser_classes=[MultiPartParser],
+    )
+    def uploap_csv(self, request: Request):
+        orders = save_csv_orders(
+            request.FILES["file"].file,
+            encoding=request.encoding,
+        )
+        serializer = self.get_serializer(orders, many=True)
+        return Response(serializer.data)
 
 @api_view()
 def api_hello_view(request: Request) -> Response:

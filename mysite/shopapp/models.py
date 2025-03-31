@@ -1,6 +1,7 @@
 import os
 from django.db import models
 from django.conf import settings
+from django.urls import reverse
 from django.utils.deconstruct import deconstructible
 from myauth.models import User
 from django.core.files.base import ContentFile
@@ -49,6 +50,9 @@ class Product(models.Model):
         upload_to=product_preview_directory_path
     )
     _preview_pending = None
+
+    def get_absolute_url(self):
+        return reverse("shopapp:product_details", kwargs={"pk": self.pk})
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

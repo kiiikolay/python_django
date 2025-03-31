@@ -1,4 +1,4 @@
-{% extends 'shopapp/baseshop.html' %}
+{% extends 'blogapp/baseblog.html' %}
 
 {% block title %}
      Список статей
@@ -10,15 +10,19 @@
         <ul>
             {% for article in object_list %}
                 <div>
-                    <p>Заголовок статьи: {{ article.title }}</p>
+                    <p>
+                        <a href="{% url 'blog:article' pk=article.pk %}">{{ article.title }}</a>
+                    </p>
                     <p>Дата публикации: {{ article.pub_date }}</p>
-                    <p>Имя автора: {{ article.author.name }}</p>
-                    <p>Категория: {{ article.category.name }}</p>
-                    <p>Теги: {{ article.tag.name }}</p>
+<!--                    <p>Имя автора: {{ article.author.name }}</p>-->
+<!--                    <p>Категория: {{ article.category.name }}</p>-->
+<!--                    <p>Теги: {{ article.tag.name }}</p>-->
+<!--                    <p>Заголовок статьи: {{ article.title }}</p>                    -->
                 </div>
-
             {% endfor %}
         </ul>
+    {% else %}
+        <h3>Ещё нет статей</h3>
     {% endif %}
 
 {% endblock %}

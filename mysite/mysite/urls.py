@@ -18,6 +18,8 @@ Including another URLconf
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
+from django.contrib.sitemaps.views import sitemap
+from .sitemaps import sitemaps
 from django.urls import path, include
 from django.conf.urls.i18n import i18n_patterns
 
@@ -32,7 +34,13 @@ urlpatterns = [
     path('api/schema/', SpectacularAPIView.as_view(), name="schema"),
     path('api/schema/svagger', SpectacularSwaggerView.as_view(url_name='schema'), name="svagger"),
     path('api/schema/redoc', SpectacularRedocView.as_view(url_name='schema'), name="redoc"),
-    path('api/', include('myapiapp.urls'))
+    path('api/', include('myapiapp.urls')),
+    path(
+        'sitemap.xml',
+        sitemap,
+        {"sitemaps": sitemaps},
+        name="django.contrib.sitemaps.views.sitemap"
+    )
 ]
 
 urlpatterns += i18n_patterns(
