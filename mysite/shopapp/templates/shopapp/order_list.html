@@ -1,4 +1,5 @@
 {% extends 'shopapp/baseshop.html' %}
+{% load cache %}
 
 {% block title %}
     Orders List
@@ -6,26 +7,32 @@
 
 {% block body %}
     <h1>Orders</h1>
-    {% if object_list %}
+    {% if orders %}
+    <h3>Заказы на {% firstof owner.firstname owner.username %}</h3>
+    <div>
+        {% now "u" %}
+    </div>
         <ul>
-            {% for order in object_list %}
-                <div>
-                    <p><a href="{% url 'shopapp:order_details' pk=order.pk %}">Детали #{{ order.pk }}</a></p>
-                    <p>Заказ на {% firstof order.user.firstname order.user.username %}</p>
-                    <p>Промокод {% firstof order.promocode "Промокода нет" %}</p>
-                    <p>Адрес доставки: {{ order.deliveri_address }}</p>
-                    Продукты в заказе:
-                    <ul>
-                        {% for product in order.products.all %}
-                            <li>{{ product.name }} стоимость которого {{ product.price }}</li>
-                        {% endfor %}
-                    </ul>
-                </div>
-
+            {% for order in orders %}
+                {% cache 100 orderinfo owner.pk %}
+                    <div>
+                        <p><a href="{% url 'shopapp:order_details' pk=order.pk %}">Детали заказа #{{ order.pk }}</a></p>
+                        Продукты в заказе:
+                        <ul>
+                            {% for product in order.products.all %}
+                                <li>{{ product.name }} стоимость которого {{ product.price }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    <div>
+                        {% now "u" %}
+                    </div>
+                {% endcache %}
             {% endfor %}
         </ul>
     {% else %}
-        <h3>Нет заказов</h3>
+        <h3>У {% firstof owner.firstname owner.username %} нет заказов</h3>
+
     {% endif %}
 
     <div>

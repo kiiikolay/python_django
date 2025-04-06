@@ -3,13 +3,18 @@
 
 Разные view интернет-магазина: по товарам, заказам и т.д.
 """
+import json
 from pickle import FALSE
 from timeit import default_timer
 from csv import DictWriter
 
+from django.core.cache import  cache
+from django.core.serializers.json import DjangoJSONEncoder
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import cache_page
 from django.contrib.auth.models import Group, User
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin, UserPassesTestMixin
-from django.http import HttpRequest, HttpResponse, HttpResponseRedirect, JsonResponse
+from django.http import HttpRequest, HttpResponse, HttpResponseRedirect, JsonResponse, HttpResponseNotFound
 from django.shortcuts import render, redirect, reverse, get_object_or_404
 from django.views.generic import TemplateView, ListView, DetailView, CreateView, DeleteView, UpdateView
 from django.urls import reverse_lazy
@@ -22,6 +27,7 @@ from django.contrib.syndication.views import Feed
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, action
+from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.filters import SearchFilter, OrderingFilter
 from rest_framework.parsers import MultiPartParser
@@ -79,6 +85,11 @@ class ProductViewSet(ModelViewSet):
         "discount",
     ]
 
+    @method_decorator(cache_page(60 * 2))
+    def list(self, *args, **kwargs):
+        # print("hello products list")
+        return super().list(*args, **kwargs)
+
     @extend_schema(
         summary="Get one product by ID",
         description="Retrive **product**, returns 404 if not found",
@@ -126,7 +137,6 @@ class ProductViewSet(ModelViewSet):
 
     def retrieve(self, *args, **kwargs):
         return super().retrieve(*args, **kwargs)
-
 
 class OrderViewSet(ModelViewSet):
     queryset = Order.objects.all()
@@ -203,6 +213,8 @@ def api_hello_view(request: Request) -> Response:
     return Response({"message": "Hello!"})
 
 class ShopIndexView(View):
+
+    # @method_decorator(cache_page(60 * 2))
     def get(self, request: HttpRequest) -> HttpResponse:
         products = [
             ('Laptop', 1999),
@@ -215,6 +227,7 @@ class ShopIndexView(View):
             "products": products,
             "items": 3,
         }
+        print("shop index context", context)
         return render(request, 'shopapp/shop-index.html', context=context)
 
 class GroupsListView(View):
@@ -304,22 +317,28 @@ class ProductDeleteView(DeleteView):
 
 class ProductsDataExportView(View):
     def get(self, request: HttpRequest) -> JsonResponse:
-        products = Product.objects.order_by("pk").all()
-        products_data = [
-            {
-                "pk": product.pk,
-                "name": product.name,
-                "price": product.price,
-                "archived": product.archived
-            }
-            for product in products
-        ]
+        cache_key = "products_data_export"
+        products_data = cache.get(cache_key)
+        if products_data is None:
+            products = Product.objects.order_by("pk").all()
+            products_data = [
+                {
+                    "pk": product.pk,
+                    "name": product.name,
+                    "price": product.price,
+                    "archived": product.archived
+                }
+                for product in products
+            ]
+
+            cache.set(cache_key, products_data, 300)
 
         return JsonResponse({"products": products_data})
 
 """______________________ORDERS___________________________"""
 
 class OrderCreateView(CreateView):
+    template_name = "shopapp/create-order.html"
     model = Order
     fields = "deliveri_address", "promocode", "user", "products"
     success_url = reverse_lazy("shopapp:orders_list")
@@ -329,6 +348,22 @@ class OrdersListViev(LoginRequiredMixin ,ListView):
                 .select_related("user")
                 .prefetch_related('products').all()
     )
+
+
+class UserOrdersListView(LoginRequiredMixin ,ListView):
+    model = Order
+    template_name = "shopapp/order_list.html"
+    context_object_name = 'orders'
+
+
+    def get_queryset(self):
+        self.owner = get_object_or_404(User, pk=self.kwargs["user_id"])
+        return Order.objects.filter(user=self.owner).prefetch_related('products')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['owner'] = self.owner
+        return context
 
 class OrdersDetailViev(PermissionRequiredMixin, DetailView):
     permission_required = "view_order"
@@ -353,21 +388,22 @@ class OrderDeleteView(DeleteView):
     model = Order
     success_url = reverse_lazy("shopapp:orders_list")
 
-class OrdersDataExportView(View):
-    def test_func(self):
-        return self.request.user.is_staff
+def user_orders_export(request, user_id):
+    cache_key = f"user_orders_export_{user_id}"
+    cached_data = cache.get(cache_key)
 
-    def get(self, request: HttpRequest) -> JsonResponse:
-        orders = Order.objects.order_by("pk").all()
-        orders_data = [
-            {
-                "pk": order.pk,
-                "deliveri_address": order.deliveri_address,
-                "promocode": order.promocode,
-                "user_id": order.user.id,
-                "products": [product.id for product in order.products.all()]
-            }
-            for order in orders
-        ]
+    if cached_data:
+        return JsonResponse(json.loads(cached_data), safe=False)
 
-        return JsonResponse({"orders": orders_data})
+    try:
+        i_user = User.objects.get(pk=user_id)
+    except User.DoesNotExist:
+        return HttpResponseNotFound("User not found")
+
+    orders = Order.objects.filter(user=i_user).order_by('pk')
+    serializer = OrderSerializer(orders, many=True)
+    data = serializer.data
+
+    # Кешируем сериализованные данные
+    cache.set(cache_key, json.dumps(data, cls=DjangoJSONEncoder), 300)  # Кэш на 5 минут
+    return JsonResponse(data, safe=False)

@@ -1,3 +1,4 @@
+from random import random
 from http.client import responses
 from itertools import product
 from pkgutil import resolve_name
@@ -17,6 +18,7 @@ from django.views import View
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.models import User
 from django.utils.translation import gettext_lazy as _, gettext as __, ngettext_lazy
+from django.views.decorators.cache import cache_page
 
 import logging
 
@@ -84,10 +86,10 @@ def set_cookie_view(request: HttpRequest) -> HttpResponse:
     response.set_cookie("fizz", "buzz", max_age=3600)
     return response
 
-
+@cache_page(60 * 2)
 def get_cookie_view(request: HttpRequest) -> HttpResponse:
     value = request.COOKIES.get("fizz", "default value")
-    return HttpResponse(f"Cookie value: {value!r}")
+    return HttpResponse(f"Cookie value: {value!r} + {random()}")
 
 @permission_required("myauth.view_profile")
 def set_session_view(request: HttpRequest) -> HttpResponse:

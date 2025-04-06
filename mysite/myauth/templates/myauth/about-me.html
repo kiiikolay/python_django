@@ -1,4 +1,5 @@
 {% extends 'myauth/baseauth.html' %}
+{% load cache %}
 
 {% block title %}
     Обо мне
@@ -7,7 +8,11 @@
 {% block body %}
     <div>
         <h1>Информация о пользователе</h1>
+        <div>
+            {% now "u" %}
+        </div>
         {% if user.is_authenticated %}
+            {% cache 300 userinfo user.username %}
             {% if profile.avatar %}
                 <img src="{{ user.profile.avatar.url }}" alt="{{ user.profile.avatar.name }}" style="height: 200px; width: 180px">
             {% endif %}
@@ -16,6 +21,10 @@
             <p>Фамилия пользователя: {{ user.last_name }}</p>
             <p>Email: {{ user.email }}</p>
             <p>Bio: {{ user.profile.bio }}</p>
+            <div>
+            {% now "u" %}
+            </div>
+            {% endcache %}
         {% else %}
             <h2>Пользователь анонимен</h2>
         {% endif %}
