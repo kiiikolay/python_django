@@ -2,6 +2,7 @@ asgiref==3.8.1
 attrs==25.1.0
 Django==5.1.2
 django-appconf==1.1.0
+django-cors-headers==4.7.0
 django-filter==25.1
 django-imagekit==5.0.0
 djangorestframework==3.15.2
@@ -9,10 +10,12 @@ docutils==0.21.2
 drf-spectacular==0.28.0
 flake8==7.1.2
 flake8-docstrings==1.7.0
+gunicorn==23.0.0
 inflection==0.5.1
 jsonschema==4.23.0
 jsonschema-specifications==2024.10.1
 mccabe==0.7.0
+packaging==24.2
 pilkit==3.0
 pillow==11.1.0
 pycodestyle==2.12.1
@@ -25,3 +28,4 @@ snowballstemmer==2.2.0
 sqlparse==0.5.1
 typing_extensions==4.12.2
 uritemplate==4.1.1
+whitenoise==6.9.0
