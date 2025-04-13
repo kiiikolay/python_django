@@ -16,6 +16,7 @@ run poetry install
 
 COPY mysite .
 
+
 # CMD ["python", "manage.py", "runserver"]
 CMD ["qunicorn", "mysite.wsgi:application", "--build", "0.0.0.0:8000"]
 
