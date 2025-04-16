@@ -18,5 +18,5 @@ COPY mysite .
 
 
 # CMD ["python", "manage.py", "runserver"]
-CMD ["qunicorn", "mysite.wsgi:application", "--build", "0.0.0.0:8000"]
+CMD ["qunicorn", "mysite.wsgi:application", "--bind", "0.0.0.0:8000"]
 
