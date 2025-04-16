@@ -6,7 +6,7 @@ WORKDIR /app
 
 EXPOSE 8000
 
-COPY requirements.txt requirements.txt
+# COPY requirements.txt requirements.txt
 
 RUN pip install --upgrade pip "poetry==2.1.2"
 # RUN pip install -r requirements.txt
@@ -18,5 +18,5 @@ COPY mysite .
 
 
 # CMD ["python", "manage.py", "runserver"]
-CMD ["qunicorn", "mysite.wsgi:application", "--build", "0.0.0.0:8000"]
+CMD ["qunicorn", "mysite.wsgi:application", "--bind", "0.0.0.0:8000"]
 
